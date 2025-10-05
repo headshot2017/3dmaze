@@ -6,9 +6,9 @@ BLOCKSDS	?= /opt/blocksds/core
 
 # User config
 
-NAME		:= 3dmaze
-GAME_TITLE	:= 3D Maze Screensaver
-GAME_SUBTITLE	:= 
+NAME		    := 3dmaze
+GAME_TITLE	    := 3D Maze Screensaver
+GAME_ICON       := icon.png
 
 SOURCEDIRS      := source/shared source/nds
 INCLUDEDIRS     := source/shared source/thirdparty

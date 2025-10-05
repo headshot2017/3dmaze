@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
 project(ssmaze)
-#set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 file(GLOB SOURCES
 	source/shared/*.c
@@ -18,12 +17,6 @@ endif()
 find_package(SDL2 REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(freeglut REQUIRED)
-#include_directories(${SDL_INCLUDE_DIR})
-#include_directories(${SDL_IMAGE_INCLUDE_DIR})
-#include_directories(${SDL_MIXER_INCLUDE_DIR})
-#include_directories(${SDL_GFX_INCLUDE_DIR})
-
-#set(BUILD_SHARED_LIBS ON)
 
 add_executable(ssmaze ${SOURCES})
 target_include_directories(ssmaze PRIVATE ${PROJECT_SOURCE_DIR}/source/shared ${PROJECT_SOURCE_DIR}/source/thirdparty)
