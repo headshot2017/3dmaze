@@ -24,7 +24,7 @@ typedef struct _Wall
 {
     FxPt2 f, t;
     int col;
-    TEX_ENV *pTexEnv;  // points to texture environment
+    Texture *pTex;  // points to texture environment
 } Wall;
     
 FxPt2 fmaze_pts[N_MAZE_PTS];
@@ -155,7 +155,7 @@ bool InitMaze(IntPt2 *start_cell, MazeGoal *goals, int *ngoals)
                 maze[nwalls].f = fmaze_pts[i*MAZE_ARRAY+j];
                 maze[nwalls].t = fmaze_pts[i*MAZE_ARRAY+j+1];
                 maze[nwalls].col = (i+j+1) & 1;
-                //maze[nwalls].pTexEnv = &gTexEnv[TEX_WALL];
+                maze[nwalls].pTex = &gTextures[TEX_WALL];
                 
                 if (i > 0)
                 {
@@ -182,7 +182,7 @@ bool InitMaze(IntPt2 *start_cell, MazeGoal *goals, int *ngoals)
                 maze[nwalls].f = fmaze_pts[i*MAZE_ARRAY+j];
                 maze[nwalls].t = fmaze_pts[(i+1)*MAZE_ARRAY+j];
                 maze[nwalls].col = (i+j) & 1;
-                //maze[nwalls].pTexEnv = &gTexEnv[TEX_WALL];
+                maze[nwalls].pTex = &gTextures[TEX_WALL];
             
                 if (j > 0)
                 {
@@ -218,7 +218,7 @@ bool InitMaze(IntPt2 *start_cell, MazeGoal *goals, int *ngoals)
     start_obj.z = FxFltVal(.5);
     start_obj.col = 12;
     start_obj.draw_style = DRAW_POLYGON;
-    //start_obj.pTexEnv = &gTexEnv[ TEX_START ];
+    start_obj.pTex = &gTextures[ TEX_START ];
     start_obj.ang = FaDeg(0);
     PlaceObject(&start_obj,
                 CellToMfx(start_cell->x)+FMAZE_CELL_SIZE/2,
@@ -229,7 +229,7 @@ bool InitMaze(IntPt2 *start_cell, MazeGoal *goals, int *ngoals)
     end_obj.z = FxFltVal(.5);
     end_obj.col = 10;
     end_obj.draw_style = DRAW_POLYGON;
-    //end_obj.pTexEnv = &gTexEnv[ TEX_END ];
+    end_obj.pTex = &gTextures[ TEX_END ];
     end_obj.ang = FaDeg(0);
     PlaceObject(&end_obj,
                 CellToMfx(goals[0].clx)+FMAZE_CELL_SIZE/2,
@@ -241,7 +241,7 @@ bool InitMaze(IntPt2 *start_cell, MazeGoal *goals, int *ngoals)
     while (i-- > 0)
     {
         j = rand() % nwalls;
-        //maze[j].pTexEnv = &gTexEnv[TEX_COVER];
+        maze[j].pTex = &gTextures[TEX_COVER];
     }
 
     return true;
@@ -661,8 +661,8 @@ static void WallDraw(PaintObject *po, MazeView *vw)
     wall = po->u.wall.wall;
     //reps = wall->pTexEnv->texRep.x;
     //rept = wall->pTexEnv->texRep.y;
-	reps = 0;
-	rept = 0;
+	reps = 1;
+	rept = 1;
     
     fx = (float)FxFlt(wall->f.x);
     fy = (float)FxFlt(wall->f.y);
@@ -690,7 +690,7 @@ static void WallDraw(PaintObject *po, MazeView *vw)
     // wall direction.  We need to know the wall direction
     // in order to ensure that the wall texture faces the
     // correct direction
-    //UseTextureEnv(wall->pTexEnv);
+    UseTexture(wall->pTex);
 
 	/*
     if (wall->pTexEnv->bTransp)
@@ -704,35 +704,36 @@ static void WallDraw(PaintObject *po, MazeView *vw)
     }
 	*/
 
+	SetAlphaCol(colors[15]);
     glBegin(GL_QUADS);
     if ((fx-cx)*nx+(fy-cy)*ny > 0)
     {
-        //glTexCoord2f(0, 0);
-        SetAlphaCol(col_set[0]);
+        glTexCoord2f(reps, rept);
+        //SetAlphaCol(col_set[0]);
         glVertex3f(fx / SCALE_VERTICES, fy / SCALE_VERTICES, 0.0f);
-        //glTexCoord2f(reps, 0);
-        SetAlphaCol(col_set[1]);
+        glTexCoord2f(0, rept);
+        //SetAlphaCol(col_set[1]);
         glVertex3f(tx / SCALE_VERTICES, ty / SCALE_VERTICES, 0.0f);
-        //glTexCoord2f(reps, rept);
-        SetAlphaCol(col_set[2]);
+        glTexCoord2f(0, 0);
+        //SetAlphaCol(col_set[2]);
         glVertex3f(tx / SCALE_VERTICES, ty / SCALE_VERTICES, maze_height / SCALE_VERTICES);
-        //glTexCoord2f(0, rept);
-        SetAlphaCol(col_set[3]);
+        glTexCoord2f(reps, 0);
+        //SetAlphaCol(col_set[3]);
         glVertex3f(fx / SCALE_VERTICES, fy / SCALE_VERTICES, maze_height / SCALE_VERTICES);
     }
     else
     {
-        //glTexCoord2f(reps, 0);
-        SetAlphaCol(col_set[0]);
+        glTexCoord2f(0, rept);
+        //SetAlphaCol(col_set[0]);
         glVertex3f(fx / SCALE_VERTICES, fy / SCALE_VERTICES, 0.0f);
-        //glTexCoord2f(0, 0);
-        SetAlphaCol(col_set[1]);
+        glTexCoord2f(reps, rept);
+        //SetAlphaCol(col_set[1]);
         glVertex3f(tx / SCALE_VERTICES, ty / SCALE_VERTICES, 0.0f);
-        //glTexCoord2f(0, rept);
-        SetAlphaCol(col_set[2]);
+        glTexCoord2f(reps, 0);
+        //SetAlphaCol(col_set[2]);
         glVertex3f(tx / SCALE_VERTICES, ty / SCALE_VERTICES, maze_height / SCALE_VERTICES);
-        //glTexCoord2f(reps, rept);
-        SetAlphaCol(col_set[3]);
+        glTexCoord2f(0, 0);
+        //SetAlphaCol(col_set[3]);
         glVertex3f(fx / SCALE_VERTICES, fy / SCALE_VERTICES, maze_height / SCALE_VERTICES);
     }
     glEnd();
@@ -792,33 +793,32 @@ static void PartialDraw(PaintObject *po, MazeView *vw)
 
     if (maze_options.render[WALLS] == RENDER_TEXTURED)
     {
-        //glDisable(GL_TEXTURE_2D);
+        glBindTexture(0, 0);
     }
 
     switch(pp->obj->draw_style)
     {
     case DRAW_POLYGON:
-        //glEnable(GL_TEXTURE_2D);
         if (!maze_options.all_alpha)
         {
             //glGetTexEnviv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, &old_env);
             //glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, gTexEnvMode);
             //glEnable(GL_BLEND);
         }
-        //UseTextureEnv( pp->obj->pTexEnv );
-        SetAlphaCol(colors[15]);
+        UseTexture( pp->obj->pTex );
         glBegin(GL_QUADS);
-        glNormal3f(cs, sn, 0.0f);
-        //glTexCoord2f(1.0f, 0.0f);
+		SetAlphaCol(colors[15]);
+        //glNormal3f(cs, sn, 0.0f);
+        glTexCoord2f(1.0f, 1.0f);
         glVertex3f(fx / SCALE_VERTICES, fy / SCALE_VERTICES, fz / SCALE_VERTICES);
-        //glTexCoord2f(0.0f, 0.0f);
+        glTexCoord2f(0.0f, 1.0f);
         glVertex3f(tx / SCALE_VERTICES, ty / SCALE_VERTICES, fz / SCALE_VERTICES);
-        //glTexCoord2f(0.0f, 1.0f);
+        glTexCoord2f(0.0f, 0.0f);
         glVertex3f(tx / SCALE_VERTICES, ty / SCALE_VERTICES, tz / SCALE_VERTICES);
-        //glTexCoord2f(1.0f, 1.0f);
+        glTexCoord2f(1.0f, 0.0f);
         glVertex3f(fx / SCALE_VERTICES, fy / SCALE_VERTICES, tz / SCALE_VERTICES);
         glEnd();
-        //glDisable(GL_TEXTURE_2D);
+        glBindTexture(0, 0);
         if (!maze_options.all_alpha)
         {
             //glDisable(GL_BLEND);
@@ -839,7 +839,7 @@ static void PartialDraw(PaintObject *po, MazeView *vw)
         glPushMatrix();
         
         glTranslatef(cx, cy, cz*maze_height);
-        glScalef(1.0, 1.0, maze_height);
+        glScalef(1.0f * w, 1.0 * w, maze_height * w);
         glRotatef(FaFltDegVal(pp->obj->ang), 0, 0, 1);
         glRotatef(pp->obj->user3, 0, 1, 0);
         // Must use convex objects since depth testing can be off
@@ -871,13 +871,13 @@ static PoDrawFn PoDraw[PO_COUNT] =
 };
 
 
-void RenderZPlane(int render, TEX_ENV *pTexEnv, int set, float zval)
+void RenderZPlane(int render, Texture *pTex, int set, float zval)
 {
-    float **col_set;
+    //float **col_set;
     //int reps = pTexEnv->texRep.x; 
     //int rept = pTexEnv->texRep.y; 
-	int reps = 0;
-	int rept = 0;
+	int reps = 1;
+	int rept = 1;
 	zval /= SCALE_VERTICES;
     
     switch(render)
@@ -885,45 +885,47 @@ void RenderZPlane(int render, TEX_ENV *pTexEnv, int set, float zval)
     case RENDER_NONE:
         break;
     case RENDER_TEXTURED:
-        //UseTextureEnv(pTexEnv);
-        //glEnable(GL_TEXTURE_2D);
+        UseTexture(pTex);
         // Fall through
     case RENDER_FLAT:
     case RENDER_SMOOTH:
+		/*
         col_set = &flat_sets[set][0][0];
         if (render == RENDER_SMOOTH)
         {
             col_set = &smooth_sets[set][0][0];
         }
+		*/
         
         glBegin(GL_QUADS);
+		SetAlphaCol(colors[15]);
 
         // Switch texture orientation dependent on surface type
         if( set == CEILING_SET ) {
             glTexCoord2f((float)reps*MAZE_SIZE, 0.0f);
-            glColor3f(col_set[0][0], col_set[0][1], col_set[0][2]);
+            //glColor3f(col_set[0][0], col_set[0][1], col_set[0][2]);
             glVertex3f(0.0f, 0.0f, zval);
             glTexCoord2f(0.0f, 0.0f);
-            glColor3f(col_set[1][0], col_set[1][1], col_set[1][2]);
+            //glColor3f(col_set[1][0], col_set[1][1], col_set[1][2]);
             glVertex3f((float)MAZE_SIZE / SCALE_VERTICES, 0.0f, zval);
             glTexCoord2f(0.0f, (float)rept*MAZE_SIZE);
-            glColor3f(col_set[2][0], col_set[2][1], col_set[2][2]);
+            //glColor3f(col_set[2][0], col_set[2][1], col_set[2][2]);
             glVertex3f((float)MAZE_SIZE / SCALE_VERTICES, (float)MAZE_SIZE / SCALE_VERTICES, zval);
             glTexCoord2f((float)reps*MAZE_SIZE, (float)rept*MAZE_SIZE);
-            glColor3f(col_set[3][0], col_set[3][1], col_set[3][2]);
+            //glColor3f(col_set[3][0], col_set[3][1], col_set[3][2]);
             glVertex3f(0.0f, (float)MAZE_SIZE / SCALE_VERTICES, zval);
         } else {
             glTexCoord2f(0.0f, 0.0f);
-            glColor3f(col_set[0][0], col_set[0][1], col_set[0][2]);
+            //glColor3f(col_set[0][0], col_set[0][1], col_set[0][2]);
             glVertex3f(0.0f, 0.0f, zval);
             glTexCoord2f((float)reps*MAZE_SIZE, 0.0f);
-            glColor3f(col_set[1][0], col_set[1][1], col_set[1][2]);
+            //glColor3f(col_set[1][0], col_set[1][1], col_set[1][2]);
             glVertex3f((float)MAZE_SIZE / SCALE_VERTICES, 0.0f, zval);
             glTexCoord2f((float)reps*MAZE_SIZE, (float)rept*MAZE_SIZE);
-            glColor3f(col_set[2][0], col_set[2][1], col_set[2][2]);
+            //glColor3f(col_set[2][0], col_set[2][1], col_set[2][2]);
             glVertex3f((float)MAZE_SIZE / SCALE_VERTICES, (float)MAZE_SIZE / SCALE_VERTICES, zval);
             glTexCoord2f(0.0f, (float)rept*MAZE_SIZE);
-            glColor3f(col_set[3][0], col_set[3][1], col_set[3][2]);
+            //glColor3f(col_set[3][0], col_set[3][1], col_set[3][2]);
             glVertex3f(0.0f, (float)MAZE_SIZE / SCALE_VERTICES, zval);
         }
 
@@ -931,7 +933,7 @@ void RenderZPlane(int render, TEX_ENV *pTexEnv, int set, float zval)
 
         if (render == RENDER_TEXTURED)
         {
-            //glDisable(GL_TEXTURE_2D);
+            glBindTexture(0, 0);
         }
         break;
     }
@@ -966,9 +968,9 @@ void Render(MazeView *vw)
               0, 0, 1);
 
     //RenderZPlane(maze_options.render[FLOOR], &gTexEnv[TEX_FLOOR], FLOOR_SET, 0.0f);
-    RenderZPlane(maze_options.render[FLOOR], 0, FLOOR_SET, 0.0f);
+    RenderZPlane(maze_options.render[FLOOR], &gTextures[TEX_FLOOR], FLOOR_SET, 0.0f);
     //RenderZPlane(maze_options.render[CEILING], &gTexEnv[TEX_CEILING], CEILING_SET, 1.0f);
-    RenderZPlane(maze_options.render[CEILING], 0, CEILING_SET, 1.0f);
+    RenderZPlane(maze_options.render[CEILING], &gTextures[TEX_CEILING], CEILING_SET, 1.0f);
         
     sorted = NULL;
     special = false;

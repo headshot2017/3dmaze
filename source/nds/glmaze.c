@@ -1,5 +1,6 @@
 #include "pch.h"
 
+#include <fat.h>
 #include <time.h>
 #include <assert.h>
 
@@ -9,16 +10,16 @@ MazeSolution sol;
 MazeOptions maze_options =
 {
     false,          // depth_test
-    RENDER_FLAT,    // render mode (WALLS)
-    RENDER_FLAT,    // render mode (FLOOR)
-    RENDER_FLAT,    // render mode (CEILING)
+    RENDER_TEXTURED,    // render mode (WALLS)
+    RENDER_TEXTURED,    // render mode (FLOOR)
+    RENDER_TEXTURED,    // render mode (CEILING)
     false,           // frame_count
     false,          // top_view
     true,           // eye_view
     false,          // single_step
     false,          // all_alpha
     false,          // bDither
-    1               // nrats
+    5               // nrats
 };
 
 float gfAspect = 1.0f;  // aspect ratio
@@ -107,7 +108,7 @@ void Draw(void)
         maze_options.render[WALLS] == RENDER_NONE ||
         maze_height < 1.0f)
     {
-		glClearColor(4, 4, 4, 31);
+		glClearColor(0, 0, 0, 31);
 	}
 
     // Rotate the palettes of any paletted texures by 1
@@ -279,7 +280,7 @@ void NewMaze(void)
         letters_obj[i].z = FxFltVal(.5);
         letters_obj[i].col = 15;
         letters_obj[i].draw_style = DRAW_POLYGON;
-        //letters_obj[i].pTexEnv = &gTexEnv[ TEX_AD ];
+        letters_obj[i].pTex = &gTextures[ TEX_AD ];
         letters_obj[i].ang = FaDeg(0);
         PlaceObject(&letters_obj[i],
                     CellToMfx(cell.x)+FMAZE_CELL_SIZE/2,
@@ -300,7 +301,7 @@ void NewMaze(void)
         rats[i].obj.z = rats[i].obj.h;
         rats[i].obj.col = 16;
         rats[i].obj.draw_style = DRAW_POLYGON;
-        //rats[i].obj.pTexEnv = &gTexEnv[ TEX_RAT ];
+        rats[i].obj.pTex = &gTextures[ TEX_RAT ];
         SolveMazeStart(&rats[i].vw, &maze_cells[0][0], MAZE_GRID, MAZE_GRID,
                        &cell, SOL_DIR_LEFT,
                        NULL, 0,
@@ -542,10 +543,164 @@ CalcTexRep( TEXTURE *pTex, IPOINT2D *pTexRep )
 *
 \**************************************************************************/
 
+#define RGB_to_DS(src) \
+	((src[0] & 0xF8) >> 3) | ((src[1] & 0xF8) << 2) | ((src[2] & 0xF8) << 7) | ((255 & 0x80) << 8)
+
+#define RGBA8_to_DS(src) \
+	((src[0] & 0xF8) >> 3) | ((src[1] & 0xF8) << 2) | ((src[2] & 0xF8) << 7) | ((src[3] & 0x80) << 8)
+
+static int FindColorInPalette(u16* pal, int pal_size, u16 col)
+{
+	if ((col >> 15) == 0) return 0;
+	
+	for (int i = 1; i < pal_size; i++) {
+		if(pal[i] == col) return i;
+	}
+	
+	return -1;
+}
+
+static GL_TEXTURE_TYPE_ENUM Palettize(int w, int h, int n, unsigned char* data, unsigned short* tmp, unsigned short* tmp_palette)
+{
+	// transfer to tmp
+	for (int y = 0; y < h; y++)
+	{
+		for (int x = 0; x < w; x++)
+		{
+			u8* src = data + ((y * w + x) * n);
+			u16* dst = tmp + (y * w + x);
+
+			if (n == 3)
+				*dst = RGB_to_DS(src);
+			else
+				*dst = RGBA8_to_DS(src);
+		}
+	}
+
+	tmp_palette[0] = 0;
+	int pal_size = 1;
+	for (int i = 0; i < w * h; i++)
+	{
+		u16 col = tmp[i];
+	
+		int idx = FindColorInPalette(tmp_palette, pal_size, col);
+		
+		if (idx == -1) {
+			pal_size++;
+			if (pal_size > 256) break;
+			tmp_palette[pal_size - 1] = col;
+		}
+	}
+
+	GL_TEXTURE_TYPE_ENUM GLformat = (n == 3) ? GL_RGB : GL_RGBA;
+	if(pal_size <= 4) GLformat = GL_RGB4;
+	else if(pal_size <= 16) GLformat = GL_RGB16;
+	else if(pal_size <= 256) GLformat = GL_RGB256;
+
+	if(GLformat != GL_RGBA && GLformat != GL_RGB)
+	{
+		char* tmp_chr = (char*) tmp;
+		
+		for (int i = 0; i < w * h; i++)
+		{
+			u16 col = tmp[i];
+			int idx = FindColorInPalette(tmp_palette, pal_size, col);
+			
+			if(GLformat == GL_RGB256) {
+				tmp_chr[i] = idx;
+			} else if(GLformat == GL_RGB16) {
+				if((i & 1) == 0) {
+					tmp_chr[i >> 1] = idx;
+				} else {
+					tmp_chr[i >> 1] |= idx << 4;
+				}
+			} else {
+				if((i & 3) == 0) {
+					tmp_chr[i >> 2] = idx;
+				} else {
+					tmp_chr[i >> 2] |= idx << (2 * (i & 3));
+				}
+			}
+		}
+	}
+
+	return GLformat;
+}
+
 static void 
 LoadTextures(void)
 {
-	return;
+	for (int i=0; i<NUM_TEXTURES; i++)
+	{
+		Texture* pTex = &gTextures[i];
+
+		// attempt to palettize texture
+		u16* tmp = (u16*)malloc(pTex->w * pTex->h * sizeof(u16));
+		if (!tmp)
+		{
+			printf("FAILED %d: tmp\n", i);
+			continue;
+		}
+		u16* tmp_palette = (u16*)malloc(256*sizeof(u16));
+		if (!tmp_palette)
+		{
+			printf("FAILED %d: tmp_palette\n", i);
+			free(tmp);
+			continue;
+		}
+
+		GL_TEXTURE_TYPE_ENUM GLformat = Palettize(pTex->w, pTex->h, pTex->n, pTex->data, tmp, tmp_palette);
+
+		glGenTextures(1, (int*)(&pTex->id));
+		glBindTexture(0, (int)pTex->id);
+
+		if (glTexImage2D(GL_TEXTURE_2D, 0, GLformat, pTex->w, pTex->h, 0, 0, tmp) == 0)
+		{
+			glDeleteTextures(1, (int*)(&pTex->id));
+			pTex->id = 0;
+			free(tmp);
+			free(tmp_palette);
+			printf("glTexImage2D failed %d: %d %d %d\n", i, pTex->w, pTex->h, pTex->n);
+			continue;
+		}
+
+		switch(GLformat)
+		{
+			case GL_RGB4:
+				printf("%d: GL_RGB4\n", i);
+				break;
+
+			case GL_RGB16:
+				printf("%d: GL_RGB16\n", i);
+				break;
+
+			case GL_RGB256:
+				printf("%d: GL_RGB256\n", i);
+				break;
+
+			case GL_RGBA:
+				printf("%d: GL_RGBA\n", i);
+				break;
+
+			case GL_RGB:
+				printf("%d: GL_RGB\n", i);
+				break;
+
+			default: break;
+		}
+
+		if (GLformat != GL_RGBA && GLformat != GL_RGB)
+		{
+			int glPalSize;
+			if(GLformat == GL_RGB4) glPalSize = 4;
+			else if(GLformat == GL_RGB16) glPalSize = 16;
+			else glPalSize = 256;
+
+			glColorTableEXT(0, 0, glPalSize, 0, 0, tmp_palette);
+		}
+		
+		glTexParameter(0, TEXGEN_TEXCOORD | GL_TEXTURE_COLOR0_TRANSPARENT | GL_TEXTURE_WRAP_S | GL_TEXTURE_WRAP_T);
+	}
 
 	/*
     int i;
@@ -623,34 +778,9 @@ LoadTextures(void)
 	*/
 }
 
-void UseTextureEnv( TEX_ENV *pTexEnv )
+void UseTexture( Texture *pTex )
 {
-	/*
-    static HTEXTURE hCurTex = (HTEXTURE) -1;
-    HTEXTURE hTex = pTexEnv->pTex;
-
-    // We cache the current texture for 'no texture object' case
-
-    if( !ss_TextureObjectsEnabled() &&
-        (hCurTex == hTex) )
-        return; // same texture, no need to send it down
-
-    // Make this texture current
-
-    ss_SetTexture( hTex );
-
-    // Set texture palette if necessary
-
-    if( pTexEnv->bPalRot &&
-        !ss_TextureObjectsEnabled() && 
-        ss_PalettedTextureEnabled() ) {
-
-        // We need to send down the (rotated) palette
-        ss_SetTexturePalette( hTex, pTexEnv->iPalRot );
-    }
-
-    hCurTex = hTex;
-	*/
+	glBindTexture(0, (!pTex) ? 0 : (int)pTex->id);
 }
 
 /******************************Public*Routine******************************\
@@ -767,17 +897,18 @@ int main(int argc, char** argv)
 	// Setup sub screen for the text console
 	consoleInit(NULL, 0, BgType_Text4bpp, BgSize_T_256x256, 0, 1, false, true);
 
+	if (!fatInitDefault())
+	{
+		printf("Failed to init FAT\nPlease check your SD card\n");
+		while (1) swiWaitForVBlank();
+	}
+
 	glInit();
 	glViewport(0, 0, 255, 191);
+	glEnable(GL_TEXTURE_2D);
 
 	getIniSettings();
     VerifyTextureFiles();
-
-    // Set callbacks
-
-    //ss_InitFunc( maze_Init );
-    //ss_UpdateFunc( Step );
-    //ss_ReshapeFunc( Reshape );
 
 	maze_Init();
 
