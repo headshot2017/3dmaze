@@ -11,7 +11,7 @@ This project aims to port the source code of the 3D Maze screensaver seen in Win
 | Nintendo DS    | In progress                                           |
 
 Along with some additional objectives:
-* Make the maze playable
+- [ ] Make the maze playable
 
 ## Third party libraries used
 * stb_image
