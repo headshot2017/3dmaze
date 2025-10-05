@@ -5,7 +5,7 @@
 This project aims to port the source code of the 3D Maze screensaver seen in Windows 9x over to multiple platforms:
 
 | Platform       | Status                                                |
-|------------------------------------------------------------------------|
+|----------------|-------------------------------------------------------|
 | Windows (SDL2) | Ported                                                |
 | Linux (SDL2)   | Untested                                              |
 | Nintendo DS    | In progress                                           |
