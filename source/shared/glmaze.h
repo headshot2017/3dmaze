@@ -24,6 +24,7 @@ void UseTexture( Texture *pTex );
 #define MAX_RATS 10
 
 extern MazeOptions maze_options;
+extern int solve_state;
 
 #ifdef __cplusplus
 }
