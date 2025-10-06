@@ -254,7 +254,7 @@ void NewMaze(void)
         special_obj[i].z = special_obj[i].h;
         special_obj[i].col = 15;
         special_obj[i].draw_style = DRAW_SPECIAL;
-        special_obj[i].draw_arg = rand() % SPECIAL_ARG_COUNT;
+        special_obj[i].draw_arg = 0;
         special_obj[i].ang = FaDeg(0);
         special_obj[i].user1 = (rand() % 6)+2;
         special_obj[i].user2 = rand() % 5;
@@ -908,7 +908,7 @@ int main(int argc, char** argv)
 	glEnable(GL_TEXTURE_2D);
 
 	getIniSettings();
-    VerifyTextureFiles();
+	VerifyTextureFiles();
 
 	maze_Init();
 

@@ -760,6 +760,52 @@ void (*convex_solids[SPECIAL_ARG_COUNT])(GLdouble radius) =
 };
 */
 
+static void cube()
+{
+	float f = 0.5f;
+
+	glBegin(GL_QUADS);
+	// FRONT
+	glColor3b(24, 24, 24);
+	glVertex3f(-f / SCALE_VERTICES, -f / SCALE_VERTICES, f / SCALE_VERTICES);
+	glVertex3f( f / SCALE_VERTICES, -f / SCALE_VERTICES, f / SCALE_VERTICES);
+	glVertex3f( f / SCALE_VERTICES,  f / SCALE_VERTICES, f / SCALE_VERTICES);
+	glVertex3f(-f / SCALE_VERTICES,  f / SCALE_VERTICES, f / SCALE_VERTICES);
+	// BACK
+	glColor3b(8, 8, 8);
+	glVertex3f(-f / SCALE_VERTICES, -f / SCALE_VERTICES, -f / SCALE_VERTICES);
+	glVertex3f(-f / SCALE_VERTICES,  f / SCALE_VERTICES, -f / SCALE_VERTICES);
+	glVertex3f( f / SCALE_VERTICES,  f / SCALE_VERTICES, -f / SCALE_VERTICES);
+	glVertex3f( f / SCALE_VERTICES, -f / SCALE_VERTICES, -f / SCALE_VERTICES);
+
+	// LEFT
+	glColor3b(16, 16, 16);
+	glVertex3f(-f / SCALE_VERTICES, -f / SCALE_VERTICES,  f / SCALE_VERTICES);
+	glVertex3f(-f / SCALE_VERTICES,  f / SCALE_VERTICES,  f / SCALE_VERTICES);
+	glVertex3f(-f / SCALE_VERTICES,  f / SCALE_VERTICES, -f / SCALE_VERTICES);
+	glVertex3f(-f / SCALE_VERTICES, -f / SCALE_VERTICES, -f / SCALE_VERTICES);
+	// RIGHT
+	glColor3b(20, 20, 20);
+	glVertex3f( f / SCALE_VERTICES, -f / SCALE_VERTICES, -f / SCALE_VERTICES);
+	glVertex3f( f / SCALE_VERTICES,  f / SCALE_VERTICES, -f / SCALE_VERTICES);
+	glVertex3f( f / SCALE_VERTICES,  f / SCALE_VERTICES,  f / SCALE_VERTICES);
+	glVertex3f( f / SCALE_VERTICES, -f / SCALE_VERTICES,  f / SCALE_VERTICES);
+
+	// TOP
+	glColor3b(16, 16, 16);
+	glVertex3f(-f / SCALE_VERTICES, f / SCALE_VERTICES,  f / SCALE_VERTICES);
+	glVertex3f( f / SCALE_VERTICES, f / SCALE_VERTICES,  f / SCALE_VERTICES);
+	glVertex3f( f / SCALE_VERTICES, f / SCALE_VERTICES, -f / SCALE_VERTICES);
+	glVertex3f(-f / SCALE_VERTICES, f / SCALE_VERTICES, -f / SCALE_VERTICES);
+	// BOTTOM
+	glColor3b(20, 20, 20);
+	glVertex3f(-f / SCALE_VERTICES, -f / SCALE_VERTICES,  f / SCALE_VERTICES);
+	glVertex3f(-f / SCALE_VERTICES, -f / SCALE_VERTICES, -f / SCALE_VERTICES);
+	glVertex3f( f / SCALE_VERTICES, -f / SCALE_VERTICES, -f / SCALE_VERTICES);
+	glVertex3f( f / SCALE_VERTICES, -f / SCALE_VERTICES,  f / SCALE_VERTICES);
+	glEnd();
+}
+
 static void PartialDraw(PaintObject *po, MazeView *vw)
 {
     PaintPartial *pp;
@@ -827,23 +873,27 @@ static void PartialDraw(PaintObject *po, MazeView *vw)
         break;
 
     case DRAW_SPECIAL:
+		/*
         SetAlphaCol(colors[pp->obj->col]);
     
-		/*
         glEnable(GL_AUTO_NORMAL);
         glEnable(GL_NORMALIZE);
         glEnable(GL_LIGHTING);
         glEnable(GL_CULL_FACE);
         glEnable(GL_DITHER);
 		*/
+		glBindTexture(0, 0);
         glPushMatrix();
         
-        glTranslatef(cx, cy, cz*maze_height);
-        glScalef(1.0f * w, 1.0 * w, maze_height * w);
+        glTranslatef(cx / SCALE_VERTICES, cy / SCALE_VERTICES, cz*maze_height / SCALE_VERTICES);
+        glScalef(w, w, maze_height * w);
         glRotatef(FaFltDegVal(pp->obj->ang), 0, 0, 1);
         glRotatef(pp->obj->user3, 0, 1, 0);
         // Must use convex objects since depth testing can be off
         //convex_solids[pp->obj->draw_arg](w);
+
+		// just draw a cube
+		cube();
         
         glPopMatrix(1);
 		/*
