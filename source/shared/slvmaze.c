@@ -1,39 +1,32 @@
 #include "pch.h"
 #pragma hdrstop
 
-static int left_turn[SOL_DIRS] =
+int left_turn[SOL_DIRS] =
 {
     SOL_DIR_DOWN, SOL_DIR_LEFT, SOL_DIR_UP, SOL_DIR_RIGHT
 };
 
-static int right_turn[SOL_DIRS] =
+int right_turn[SOL_DIRS] =
 {
     SOL_DIR_UP, SOL_DIR_RIGHT, SOL_DIR_DOWN, SOL_DIR_LEFT
 };
 
-static uint8_t dir_wall[SOL_DIRS] =
+uint8_t dir_wall[SOL_DIRS] =
 {
     MAZE_WALL_LEFT, MAZE_WALL_UP, MAZE_WALL_RIGHT, MAZE_WALL_DOWN
 };
 
-static int dir_cloff[SOL_DIRS][2] =
+int dir_cloff[SOL_DIRS][2] =
 {
     -1,0, 0,-1, 1,0, 0,1
 };
 
-static FaAngle dir_ang[SOL_DIRS];
-static FxPt2 dir_off[SOL_DIRS];
+FaAngle dir_ang[SOL_DIRS];
+FxPt2 dir_off[SOL_DIRS];
 
-/* We want to traverse one quarter of a circle in the given number of
-   steps.  The distance is the arc length which is r*pi/2.  Divide that
-   by the number of steps to get the distance each step should travel */
-#define ARC_STEP 5
-#define ARC_STEPS (90/ARC_STEP)
+#define MazeAt(x, y) (sol->maze+(x)+(y)*(sol->w))
 
-#define REVERSE_STEP (2*ARC_STEP)
-#define REVERSE_STEPS (180/REVERSE_STEP)
-
-static void SetView(MazeSolution *sol, MazeView *vw)
+void SetView(MazeSolution *sol, MazeView *vw)
 {
     vw->ang = dir_ang[sol->dir];
     vw->pos.x = CellToMfx(sol->clx)+dir_off[sol->dir].x;
@@ -94,8 +87,6 @@ void SolveMazeStart(MazeView *vw,
     
     SetView(sol, vw);
 }
-
-#define MazeAt(x, y) (sol->maze+(x)+(y)*(sol->w))
 
 MazeGoal *SolveMazeStep(MazeView *vw, MazeSolution *sol)
 {

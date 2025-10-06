@@ -4,7 +4,7 @@
 #define VIEW_ANG 90
 
 float maze_height;
-double view_rot;
+int view_rot;
 void* maze_walls_list;
 
 extern TEX_ENV gTexEnv[];

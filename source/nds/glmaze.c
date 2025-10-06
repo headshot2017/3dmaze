@@ -6,6 +6,7 @@
 
 MazeView vw;
 MazeSolution sol;
+bool player_mode = false;
 
 MazeOptions maze_options =
 {
@@ -340,12 +341,21 @@ void Step()
     int i;
     MazeGoal *goal;
 
+	if (keysDown() & KEY_START && solve_state != SST_MAZE_GROW)
+	{
+		solve_state = SST_NEW_MAZE;
+		player_mode = !player_mode;
+		printf("%s player mode\n", player_mode ? "Entering" : "Leaving");
+	}
+
     switch(solve_state)
     {
     case SST_NEW_MAZE:
         view_rot = 0;
         maze_height = 0.0f;
         NewMaze();
+		if (player_mode)
+			printf("New level started\n");
         break;
 
     case SST_SOLVING:
@@ -355,10 +365,12 @@ void Step()
             UpdateRatPosition(&rats[i]);
         }
         
-        goal = SolveMazeStep(&vw, &sol);
+        goal = (player_mode) ? SolveMazeStepPlayer(&vw, &sol) : SolveMazeStep(&vw, &sol);
         if (goal == &maze_goals[GOAL_END])
         {
             solve_state = SST_MAZE_SHRINK;
+			if (player_mode)
+				printf("GG!\n");
         }
         else if (goal != NULL)
         {
@@ -385,7 +397,7 @@ void Step()
         break;
 
     case SST_ROTATE:
-        view_rot += 10.0;
+        view_rot += 10;
         if (++rot_step == 18)
         {
             Object *sp_obj;
@@ -403,13 +415,13 @@ void Step()
             SolveMazeSetGoals(&sol, maze_goals, ngoals);
             found_goal = NULL;
 
-            if (view_rot >= 360.0)
+            if (view_rot >= 360)
             {
-                view_rot = 0.0;
+                view_rot = 0;
             }
             else
             {
-                view_rot = 180.0;
+                view_rot = 180;
             }
         }
         break;
@@ -917,8 +929,8 @@ int main(int argc, char** argv)
 	{
 		scanKeys();
 
-		uint32_t down = keysDown();
-		if (down & KEY_START)
+		uint32_t held = keysHeld();
+		if (held & KEY_START && held & KEY_SELECT)
 			run = false;
 
 		Step();
@@ -990,4 +1002,6 @@ void maze_Init()
     maze_walls_list = (void*)malloc(sizeof(uint32_t) * 8192);
     
     UpdateModes();
+
+	printf("Press START to play\n");
 }

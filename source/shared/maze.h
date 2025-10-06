@@ -47,8 +47,9 @@
 
 extern Cell maze_cells[MAZE_GRID][MAZE_GRID];
 
+extern bool player_mode;
 extern float maze_height;
-extern double view_rot;
+extern int view_rot;
 extern void* maze_walls_list;
 
 extern int gTexEnvMode;
