@@ -330,11 +330,20 @@ void Step()
     MazeGoal *goal;
 
 	const uint8_t* state = SDL_GetKeyboardState(NULL);
+	static bool spacePressed = false;
 	if (state[SDL_SCANCODE_RETURN] && solve_state != SST_MAZE_GROW)
 	{
 		solve_state = SST_NEW_MAZE;
 		player_mode = !player_mode;
 		printf("%s player mode\n", player_mode ? "Entering" : "Leaving");
+		if (player_mode)
+			printf("Use arrow keys to move, space to toggle map\n");
+	}
+	if (state[SDL_SCANCODE_SPACE] != spacePressed)
+	{
+		spacePressed = state[SDL_SCANCODE_SPACE];
+		if (spacePressed)
+			maze_options.top_view = !maze_options.top_view;
 	}
 
     switch(solve_state)
