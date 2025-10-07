@@ -347,7 +347,7 @@ void Step()
 		player_mode = !player_mode;
 		printf("%s player mode\n", player_mode ? "Entering" : "Leaving");
 		if (player_mode)
-			printf("Use D-Pad to move, A to toggle map\n");
+			printf("D-Pad to move, A to toggle map\n");
 	}
 	if (keysDown() & KEY_A)
 		maze_options.top_view = !maze_options.top_view;

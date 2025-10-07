@@ -708,31 +708,31 @@ static void WallDraw(PaintObject *po, MazeView *vw)
     glBegin(GL_QUADS);
     if ((fx-cx)*nx+(fy-cy)*ny > 0)
     {
-        glTexCoord2f(reps, rept);
+        glTexCoord2f(0, rept);
         //SetAlphaCol(col_set[0]);
         glVertex3f(fx / SCALE_VERTICES, fy / SCALE_VERTICES, 0.0f);
-        glTexCoord2f(0, rept);
+        glTexCoord2f(reps, rept);
         //SetAlphaCol(col_set[1]);
         glVertex3f(tx / SCALE_VERTICES, ty / SCALE_VERTICES, 0.0f);
-        glTexCoord2f(0, 0);
+        glTexCoord2f(reps, 0);
         //SetAlphaCol(col_set[2]);
         glVertex3f(tx / SCALE_VERTICES, ty / SCALE_VERTICES, maze_height / SCALE_VERTICES);
-        glTexCoord2f(reps, 0);
+        glTexCoord2f(0, 0);
         //SetAlphaCol(col_set[3]);
         glVertex3f(fx / SCALE_VERTICES, fy / SCALE_VERTICES, maze_height / SCALE_VERTICES);
     }
     else
     {
-        glTexCoord2f(0, rept);
+        glTexCoord2f(reps, rept);
         //SetAlphaCol(col_set[0]);
         glVertex3f(fx / SCALE_VERTICES, fy / SCALE_VERTICES, 0.0f);
-        glTexCoord2f(reps, rept);
+        glTexCoord2f(0, rept);
         //SetAlphaCol(col_set[1]);
         glVertex3f(tx / SCALE_VERTICES, ty / SCALE_VERTICES, 0.0f);
-        glTexCoord2f(reps, 0);
+        glTexCoord2f(0, 0);
         //SetAlphaCol(col_set[2]);
         glVertex3f(tx / SCALE_VERTICES, ty / SCALE_VERTICES, maze_height / SCALE_VERTICES);
-        glTexCoord2f(0, 0);
+        glTexCoord2f(reps, 0);
         //SetAlphaCol(col_set[3]);
         glVertex3f(fx / SCALE_VERTICES, fy / SCALE_VERTICES, maze_height / SCALE_VERTICES);
     }
