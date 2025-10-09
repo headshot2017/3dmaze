@@ -62,8 +62,15 @@ MazeGoal *SolveMazeStepPlayer(MazeView *vw, MazeSolution *sol)
 	dir = sol->dir;
 
 	const uint8_t* state = SDL_GetKeyboardState(NULL);
-	uint8_t left = (!view_rot) ? SDL_SCANCODE_LEFT : SDL_SCANCODE_RIGHT;
-	uint8_t right = (!view_rot) ? SDL_SCANCODE_RIGHT : SDL_SCANCODE_LEFT;
+	uint8_t left = SDL_SCANCODE_LEFT;
+	uint8_t right = SDL_SCANCODE_RIGHT;
+	if ((sol->dir_sign == 1 && !view_rot) || (sol->dir_sign != 1 && view_rot))
+	{
+		uint8_t temp = right;
+		right = left;
+		left = temp;
+	}
+
 	if (state[left])
 	{
 		turn_to = sol->turn_to[dir];

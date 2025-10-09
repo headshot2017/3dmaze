@@ -62,8 +62,15 @@ MazeGoal *SolveMazeStepPlayer(MazeView *vw, MazeSolution *sol)
 	dir = sol->dir;
 
 	uint16_t keys = keysHeld();
-	uint16_t left = keys & ((!view_rot) ? KEY_LEFT : KEY_RIGHT);
-	uint16_t right = keys & ((!view_rot) ? KEY_RIGHT : KEY_LEFT);
+	uint16_t left = keys & KEY_LEFT;
+	uint16_t right = keys & KEY_RIGHT;
+	if ((sol->dir_sign == 1 && !view_rot) || (sol->dir_sign != 1 && view_rot))
+	{
+		uint16_t temp = right;
+		right = left;
+		left = temp;
+	}
+
 	if (left)
 	{
 		turn_to = sol->turn_to[dir];
