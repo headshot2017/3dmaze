@@ -1,0 +1,68 @@
+#
+# Basic KallistiOS skeleton / test program
+# Copyright (C) 2001-2004 Megan Potter
+# Copyright (C) 2024 Falco Girgis
+#   
+
+# Put the filename of the output binary here
+TARGET = 3dmaze-dc.elf
+
+# List all of your C or C++ files here, but change the extension to ".o"
+BUILD_DIR    := build-dc
+SOURCE_DIRS  := source/shared source/dc
+CPP_FILES    := $(shell find -L $(SOURCE_DIRS) -name "*.cpp")
+C_FILES      := $(shell find -L $(SOURCE_DIRS) -name "*.c")
+OBJS         := $(addsuffix .o,$(addprefix $(BUILD_DIR)/,$(C_FILES))) \
+                $(addsuffix .o,$(addprefix $(BUILD_DIR)/,$(CPP_FILES)))
+
+CFLAGS       := -Isource/shared -Isource/thirdparty -DFX_SINGLE -DPLATFORM_DC
+LIBS         := -lGL
+
+# Optional path to a directory of resources to bundle within your ELF binary.
+# Its contents are accessible via the "/rd/" virtual directory at runtime.
+#KOS_ROMDISK_DIR = romdisk
+#OBJS           += romdisk.o
+
+# Main rule which forces our ELF binary to be built
+all: rm-elf $(TARGET)
+
+$(BUILD_DIR)/%.c.o: %.c
+	mkdir -p $(@D)
+	kos-cc $(CFLAGS) $(CPPFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/%.cpp.o: %.cpp
+	mkdir -p $(@D)
+	kos-c++ $(CXXFLAGS) $(CPPFLAGS) -c $< -o $@
+
+# Include the common KOS Makefile rules and configuration
+include $(KOS_BASE)/Makefile.rules
+
+# Cleans the binary ELF file plus the intermediate .o files
+clean: rm-elf
+	-rm -f $(OBJS)
+
+# Removes the binary ELF file
+rm-elf:
+	-rm -f $(TARGET)
+
+# Invokes the compiler to build the target from our object files
+$(TARGET): $(OBJS)
+	kos-c++ -o $(TARGET) $(OBJS) $(LIBS)
+
+# Attempts to run the target using the configured loader application
+run: $(TARGET)
+	$(KOS_LOADER) $(TARGET)
+
+# Creates a distributable/release ELF which strips away its debug symbols
+dist: $(TARGET)
+	$(KOS_STRIP) $(TARGET)
+
+cdi: $(TARGET) cd_root
+	elf2bin $(TARGET) -f
+	scramble $(basename $(TARGET)).bin cd_root/1ST_READ.BIN
+	makeip -l logo_dc.png -g "3D MAZE" -f IP.BIN
+	makedisc $(basename $(TARGET)).cdi cd_root IP.BIN
+
+cd_root:
+	mkdir cd_root
+	cp -r data cd_root/

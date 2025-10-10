@@ -12,6 +12,11 @@
 #elifdef PLATFORM_NDS
 	#define SCALE_VERTICES 4
 	#include <nds.h>
+#elifdef PLATFORM_DC
+	#include <kos.h>
+	#include <GL/gl.h>
+	#include <GL/glu.h>
+	#include <GL/glkos.h>
 #endif
 
 #include "fixed.h"

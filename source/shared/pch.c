@@ -9,6 +9,8 @@
 #define DATA_PATH "data/3dmaze"
 #elifdef PLATFORM_NDS
 #define DATA_PATH "/data/3dmaze"
+#elifdef PLATFORM_DC
+#define DATA_PATH "/cd/data/3dmaze"
 #endif
 
 Texture gTextures[NUM_TEXTURES] = {0};
@@ -24,17 +26,15 @@ void getIniSettings()
 
 	for (int i=0; i<NUM_TEXTURES; i++)
 	{
-		char textureFile[128];
+		char textureFile[128] = {0};
 		fgets(textureFile, sizeof(textureFile), f);
 		for (int j=0; j<sizeof(textureFile); j++)
 		{
-			if (textureFile[j] != '\n') continue;
+			if (textureFile[j] != '\n' && textureFile[j] != '\r') continue;
 			textureFile[j] = 0;
 			break;
 		}
 		gTextures[i].data = stbi_load(textureFile, &gTextures[i].w, &gTextures[i].h, &gTextures[i].n, 0);
-		if (gTextures[i].data)
-			printf("loaded %s\n", textureFile);
 	}
 
 	fclose(f);
