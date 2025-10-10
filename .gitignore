@@ -1,3 +1,6 @@
 build*/
+cd_root/
 *.nds
-
+*.elf
+*.bin
+*.cdi
