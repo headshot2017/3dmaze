@@ -9,10 +9,10 @@ This project aims to port the source code of the 3D Maze screensaver seen in Win
 | Windows (SDL2) | Ported                                                |
 | Linux (SDL2)   | Untested                                              |
 | Nintendo DS    | Ported                                                |
-| Sega Dreamcast | Planned                                               |
+| Sega Dreamcast | In progress                                           |
 
 Along with some additional objectives:
-- [ ] Make the maze playable
+- [x] Make the maze playable
 
 Contributions are welcome
 
