@@ -823,6 +823,8 @@ int main(int argc, char** argv)
 	getIniSettings();
     VerifyTextureFiles();
 
+	srand(time(0));
+
 	maze_Init();
 
 	bool run = true;
