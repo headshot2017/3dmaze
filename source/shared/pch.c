@@ -35,6 +35,7 @@ void getIniSettings()
 			break;
 		}
 		gTextures[i].data = stbi_load(textureFile, &gTextures[i].w, &gTextures[i].h, &gTextures[i].n, 0);
+		printf("%s \"%s\"\n", (gTextures[i].data) ? "load" : "fail", textureFile);
 	}
 
 	fclose(f);
