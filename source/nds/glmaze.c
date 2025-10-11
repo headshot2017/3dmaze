@@ -4,9 +4,13 @@
 #include <time.h>
 #include <assert.h>
 
+//the speed of the timer when using ClockDivider_1024
+#define TIMER_SPEED div32(BUS_CLOCK,1024)
+
 MazeView vw;
 MazeSolution sol;
 bool player_mode = false;
+u32 player_timer = 0;
 
 MazeOptions maze_options =
 {
@@ -224,6 +228,8 @@ void NewMaze(void)
     IntPt2 cell, start_cell;
     int i, nspecials, nads;
     static bool firstMaze = true;
+	player_timer = 0;
+	timerStop(0);
 
     // If not in full screen mode, move the maze window around after it's solved
     //if( !gbTurboMode && !firstMaze )
@@ -326,6 +332,11 @@ void NewMaze(void)
     firstMaze = false;
 }
 
+static void AddTimer()
+{
+	player_timer += timerElapsed(0) * 1000 / TIMER_SPEED;
+}
+
 /**************************************************************************\
 * Step
 *
@@ -374,7 +385,7 @@ void Step()
         {
             solve_state = SST_MAZE_SHRINK;
 			if (player_mode)
-				printf("GG!\n");
+				printf("GG! Took %.3f seconds\n", player_timer/1000.f);
         }
         else if (goal != NULL)
         {
@@ -382,6 +393,8 @@ void Step()
             found_goal = goal;
             rot_step = 0;
         }
+
+		AddTimer();
         break;
 
     case SST_MAZE_GROW:
@@ -389,6 +402,7 @@ void Step()
         if (maze_height >= 1.0f)
         {
             solve_state = SST_SOLVING;
+			timerStart(0, ClockDivider_1024, 0, NULL);
         }
         break;
         
@@ -428,6 +442,7 @@ void Step()
                 view_rot = 180;
             }
         }
+		AddTimer();
         break;
     }
 

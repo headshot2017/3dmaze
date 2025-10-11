@@ -8,6 +8,8 @@
 MazeView vw;
 MazeSolution sol;
 bool player_mode = false;
+float player_timer = 0;
+float player_timer_start = 0;
 
 SDL_Window* gSDLWindow = 0;
 SDL_GLContext* gSDLGLContext = 0;
@@ -212,6 +214,7 @@ void NewMaze(void)
     IntPt2 cell, start_cell;
     int i, nspecials, nads;
     static bool firstMaze = true;
+	player_timer = 0;
 
     // If not in full screen mode, move the maze window around after it's solved
     //if( !gbTurboMode && !firstMaze )
@@ -314,6 +317,11 @@ void NewMaze(void)
     firstMaze = false;
 }
 
+static void AddTimer()
+{
+	player_timer = (float)(SDL_GetPerformanceCounter()) / SDL_GetPerformanceFrequency() - player_timer_start;
+}
+
 /**************************************************************************\
 * Step
 *
@@ -368,7 +376,7 @@ void Step()
         {
             solve_state = SST_MAZE_SHRINK;
 			if (player_mode)
-				printf("GG!\n");
+				printf("GG! Took %.3f seconds\n", player_timer);
         }
         else if (goal != NULL)
         {
@@ -376,6 +384,8 @@ void Step()
             found_goal = goal;
             rot_step = 0;
         }
+
+		AddTimer();
         break;
 
     case SST_MAZE_GROW:
@@ -383,6 +393,7 @@ void Step()
         if (maze_height >= 1.0f)
         {
             solve_state = SST_SOLVING;
+			player_timer_start = (float)(SDL_GetPerformanceCounter()) / SDL_GetPerformanceFrequency();
         }
         break;
         
@@ -422,6 +433,7 @@ void Step()
                 view_rot = 180;
             }
         }
+		AddTimer();
         break;
     }
 
