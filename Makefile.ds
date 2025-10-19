@@ -16,6 +16,11 @@ INCLUDEDIRS     := source/shared source/thirdparty
 DEFINES         := -DPLATFORM_NDS -DFX_SINGLE
 LIBS            := -lnds9
 
+ifeq ($(USE_NITRO),1)
+    NITROFSDIR  := data
+    DEFINES += -DUSE_NITROFS
+endif
+
 include $(BLOCKSDS)/sys/default_makefiles/rom_arm9/Makefile
 
 #CFLAGS          = -std=gnu17 $(WARNFLAGS) $(INCLUDEFLAGS) $(DEFINES) \
