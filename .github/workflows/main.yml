@@ -49,7 +49,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo apt install libsdl2-dev freeglut3-dev
+        sudo apt install libsdl2-dev freeglut3-dev libglew-dev
 
     - name: Compile
       run: |
