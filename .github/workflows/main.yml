@@ -1,0 +1,111 @@
+name: C/C++ CI
+
+on: [push, pull_request]
+
+jobs:
+  build-win32:
+    name: Win32 build
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: mingw32
+          update: true
+          pacboy: >-
+            toolchain:p
+            cmake:p
+            ninja:p
+            SDL2:p
+            glew:p
+            freeglut:p
+
+      - name: Compile
+        run: |
+          cmake -G Ninja -B build-win32
+          cmake --build build-win32
+          cp -r data build-win32/
+          cp /mingw32/bin/SDL2.dll /mingw32/bin/glew32.dll /mingw32/bin/libfreeglut.dll /mingw32/bin/libgcc_s_dw2-1.dll /mingw32/bin/libwinpthread-1.dll build-win32/
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Win32 build
+          path: ./build-win32
+
+
+  build-macos:
+    name: macOS build
+    runs-on: macos-13
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        brew install sdl2 freeglut glew xquartz cmake make
+
+    - name: Compile
+      run: |
+        cmake -B build-macos
+        cmake --build build-macos
+        cp -r data build-macos/
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: macOS build
+        path: ./build-macos
+
+
+  build-nds-fat:
+    name: NDS build (FAT)
+    runs-on: ubuntu-latest
+    container: 
+      image: skylyrac/blocksds:dev-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Make ROM
+      run: |
+        make -f Makefile.ds
+
+    - name: Setup artifact
+      run: |
+        mkdir 3dmaze-fat
+        mv 3dmaze.nds data 3dmaze-fat/
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: NDS ROM (FAT)
+        path: ./3dmaze-fat
+
+
+  build-nds-nitrofs:
+    name: NDS build (NitroFS)
+    runs-on: ubuntu-latest
+    container:
+      image: skylyrac/blocksds:dev-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Make ROM
+      run: |
+        USE_NITRO=1 make -f Makefile.ds
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: NDS ROM (NitroFS)
+        path: ./3dmaze-nitrofs.nds
