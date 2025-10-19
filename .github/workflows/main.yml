@@ -58,7 +58,7 @@ jobs:
         cp -r data build-macos/
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: macOS build
         path: ./build-macos
@@ -84,7 +84,7 @@ jobs:
         mv 3dmaze.nds data 3dmaze-fat/
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: NDS ROM (FAT)
         path: ./3dmaze-fat
@@ -105,7 +105,7 @@ jobs:
         USE_NITRO=1 make -f Makefile.ds
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: NDS ROM (NitroFS)
         path: ./3dmaze-nitrofs.nds
