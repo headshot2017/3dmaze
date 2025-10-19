@@ -9,10 +9,10 @@
 	#include <SDL2/SDL.h>
 	extern SDL_Window* gSDLWindow;
 	extern SDL_GLContext* gSDLGLContext;
-#elifdef PLATFORM_NDS
+#elif defined(PLATFORM_NDS)
 	#define SCALE_VERTICES 4
 	#include <nds.h>
-#elifdef PLATFORM_DC
+#elif defined(PLATFORM_DC)
 	#include <kos.h>
 	#include <GL/gl.h>
 	#include <GL/glu.h>
