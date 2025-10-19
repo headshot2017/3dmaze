@@ -49,7 +49,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        brew install sdl2 freeglut glew xquartz cmake make
+        brew install sdl2 freeglut glew xquartz make
 
     - name: Compile
       run: |
