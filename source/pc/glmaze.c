@@ -1,7 +1,7 @@
 #include "pch.h"
 #pragma hdrstop
 
-#include <gl/freeglut.h>
+#include <GL/freeglut.h>
 #include <time.h>
 #include <assert.h>
 
