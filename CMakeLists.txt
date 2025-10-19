@@ -22,7 +22,7 @@ find_package(GLUT REQUIRED)
 add_executable(ssmaze ${SOURCES})
 target_include_directories(ssmaze PRIVATE ${PROJECT_SOURCE_DIR}/source/shared ${PROJECT_SOURCE_DIR}/source/thirdparty)
 
-target_link_libraries(ssmaze GLEW::GLEW GLUT::GLUT SDL2::SDL2 OpenGL::GL)
+target_link_libraries(ssmaze GLEW::GLEW GLUT::GLUT SDL2::SDL2 OpenGL::GL OpenGL::GLU)
 #target_link_options(ssmaze PRIVATE -static-libstdc++)
 
 if (WIN32)
@@ -40,6 +40,7 @@ elseif(APPLE)
 		INSTALL_RPATH "@loader_path/../Frameworks;/Library/Frameworks")
 	target_compile_definitions(ssmaze PRIVATE PLATFORM_SDL FX_SINGLE)
 else()
+	target_link_libraries(ssmaze m)
 	target_compile_definitions(ssmaze PRIVATE PLATFORM_SDL FX_SINGLE)
 endif()
 
