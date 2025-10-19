@@ -2,7 +2,7 @@
 #pragma hdrstop
 #include "maze_std.h"
 
-#include <gl/freeglut.h>
+#include <GL/freeglut.h>
 
 #define VIEW_ANG 90
 
