@@ -4,3 +4,4 @@ cd_root/
 *.elf
 *.bin
 *.cdi
+*.zip

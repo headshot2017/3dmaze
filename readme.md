@@ -26,13 +26,14 @@ Contributions are welcome
 * Install the SDL2 and freeglut dependencies through a terminal with your package manager
 * Build with cmake:
 ```
-mkdir build
-cd build
+mkdir build-pc
+cd build-pc
 cmake ..
 make
 ```
 
 ### For Nintendo DS:
 * Install the [BlocksDS](https://blocksds.skylyrac.net/docs/setup/options/) SDK
-* Build with `make`
+* Build with `make -f Makefile.ds`
 * Copy the "data" folder to the root of the SD card.
+   * If you wish to build the game to use the NitroFS filesystem: `USE_NITRO=1 make -f Makefile.ds`
