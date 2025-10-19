@@ -39,6 +39,31 @@ jobs:
           path: ./build-win32
 
 
+  build-ubuntu:
+    name: Ubuntu build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt install libsdl2-dev freeglut3-dev
+
+    - name: Compile
+      run: |
+        cmake -B build-ubuntu
+        cmake --build build-ubuntu
+        cp -r data build-ubuntu/
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Ubuntu build
+        path: ./build-ubuntu
+
+
   build-macos:
     name: macOS build
     runs-on: macos-13
