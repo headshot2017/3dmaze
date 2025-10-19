@@ -23,7 +23,7 @@ add_executable(ssmaze ${SOURCES})
 target_include_directories(ssmaze PRIVATE ${PROJECT_SOURCE_DIR}/source/shared ${PROJECT_SOURCE_DIR}/source/thirdparty)
 
 target_link_libraries(ssmaze GLEW::GLEW GLUT::GLUT SDL2::SDL2 OpenGL::GL)
-target_link_options(ssmaze PRIVATE -static-libstdc++)
+#target_link_options(ssmaze PRIVATE -static-libstdc++)
 
 if (WIN32)
 	target_link_libraries(ssmaze opengl32 ddraw dinput8 dxguid dxerr8 user32 gdi32 winmm)
