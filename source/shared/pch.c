@@ -7,10 +7,17 @@
 
 #ifdef PLATFORM_SDL
 #define DATA_PATH "data/3dmaze"
+
 #elifdef PLATFORM_NDS
+#ifdef USE_NITROFS
+#define DATA_PATH "nitro:/3dmaze"
+#else
 #define DATA_PATH "/data/3dmaze"
+#endif
+
 #elifdef PLATFORM_DC
 #define DATA_PATH "/cd/data/3dmaze"
+
 #endif
 
 Texture gTextures[NUM_TEXTURES] = {0};

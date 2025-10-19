@@ -1,6 +1,7 @@
 #include "pch.h"
 
 #include <fat.h>
+#include <filesystem.h>
 #include <time.h>
 #include <assert.h>
 
@@ -928,11 +929,19 @@ int main(int argc, char** argv)
 	// Setup sub screen for the text console
 	consoleInit(NULL, 0, BgType_Text4bpp, BgSize_T_256x256, 0, 1, false, true);
 
+#ifndef USE_NITROFS
 	if (!fatInitDefault())
 	{
 		printf("Failed to init FAT\nPlease check your SD card\n");
 		while (1) swiWaitForVBlank();
 	}
+#else
+	if (!nitroFSInit(0))
+	{
+		printf("Failed to init NitroFS\n");
+		while (1) swiWaitForVBlank();
+	}
+#endif
 
 	glInit();
 	glViewport(0, 0, 255, 191);
